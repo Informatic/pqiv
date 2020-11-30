@@ -6643,13 +6643,13 @@ gboolean window_configure_callback(GtkWidget *widget, GdkEventConfigure *event, 
 		XRectangle rectangle = { 0, 0, 1, 1 };
 		XUnionRectWithRegion(&rectangle, region, region);
 		XShapeCombineRegion(display, window_xid, ShapeInput, 0, 0, region, ShapeSet);
-		XDestroyRegion(region);	
+		XDestroyRegion(region);
 	}
-	
+
 	if(option_keep_above) {
 		gtk_window_set_keep_above(main_window, TRUE);
 	}
-	
+
 	return FALSE;
 }/*}}}*/
 void handle_input_event(guint key_binding_value);
@@ -7248,6 +7248,17 @@ void create_window() { /*{{{*/
 
 	if(option_transparent_background) {
 		window_screen_activate_rgba();
+	}
+
+	gtk_widget_realize(main_window);
+	GdkWindow* gdkwindow = gtk_widget_get_window(main_window);
+	if(option_click_through) {
+		gdk_window_set_accept_focus(gdkwindow, FALSE);
+	}
+	// Make window manager ignore this window to properly stay above fullscreen
+	// windows (at least when using openbox)
+	if(option_keep_above) {
+		gdk_window_set_override_redirect(gdkwindow, TRUE);
 	}
 }/*}}}*/
 gboolean initialize_gui() {/*{{{*/
